@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">FastFoodRecogApp</string>
+    // title string
+    <string name="app_name">Fastfood Recognizor</string>
+    <string name="choose_rest_title">Restaurant List</string>
+
+    // context
+    <string name="hint_text">Choose a restaurant first.</string>
+
 </resources>
