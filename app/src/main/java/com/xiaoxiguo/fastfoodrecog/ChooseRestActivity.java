@@ -65,10 +65,8 @@ public class ChooseRestActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Bundle bundle = new Bundle();
-                bundle.putString("filepath", fileUri.getPath());
                 Intent imageIntent = new Intent(ChooseRestActivity.this, ImageActivity.class);
-                imageIntent.putExtras(bundle);
+                imageIntent.putExtra("imageUri", fileUri);
                 startActivity(imageIntent);
             } else if (resultCode == RESULT_CANCELED) {
                 // User cancelled the image capture
@@ -78,7 +76,6 @@ public class ChooseRestActivity extends AppCompatActivity {
                 Toast.makeText(this, "Image capture failed", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
 
     /**

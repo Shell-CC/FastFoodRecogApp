@@ -26,10 +26,19 @@ public class Image {
 
     /**
      * Construct an image from org.opencv.Mat
-     * @param image Given mat.
+     * @param image Given image as mat.
      */
     public Image(Mat image) {
         this.image = image;
+    }
+
+    /**
+     * Construct an image from Bitmap
+     * @param bitmap Image as Bitmap format.
+     */
+    public Image(Bitmap bitmap) {
+        image = new Mat();
+        Utils.bitmapToMat(bitmap, image);
     }
 
     /**
@@ -100,8 +109,8 @@ public class Image {
      * Return the Bitmap format of the image
      * @return Image in Android Bitmap
      */
-    public Bitmap toBitmap() {
-        Bitmap bitmap = Bitmap.createBitmap(image.cols(), image.rows(), Bitmap.Config.ARGB_8888);
+    public Bitmap toBitmap(Bitmap.Config config) {
+        Bitmap bitmap = Bitmap.createBitmap(image.cols(), image.rows(), config);
         Utils.matToBitmap(image, bitmap);
         return bitmap;
     }

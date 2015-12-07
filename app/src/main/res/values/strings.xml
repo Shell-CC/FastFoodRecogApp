@@ -5,5 +5,6 @@
 
     // context
     <string name="hint_text">Choose a restaurant first.</string>
+    <string name="title_activity_main2">Main2Activity</string>
 
 </resources>

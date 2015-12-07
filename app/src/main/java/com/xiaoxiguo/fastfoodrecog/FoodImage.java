@@ -1,5 +1,7 @@
 package com.xiaoxiguo.fastfoodrecog;
 
+import android.graphics.Bitmap;
+
 import org.opencv.core.*;
 import org.opencv.features2d.DescriptorExtractor;
 import org.opencv.features2d.FeatureDetector;
@@ -34,6 +36,16 @@ public class FoodImage extends Image{
      */
     public FoodImage(Mat image) {
         super(image);
+        this.backgroundMask = new Mat();
+        this.features = new MatOfKeyPoint();
+    }
+
+    /**
+     * Construct an image from Bitmap
+     * @param bitmap Image as Bitmap format.
+     */
+    public FoodImage(Bitmap bitmap) {
+        super(bitmap);
         this.backgroundMask = new Mat();
         this.features = new MatOfKeyPoint();
     }
@@ -95,10 +107,9 @@ public class FoodImage extends Image{
         Mat fgModel = new Mat();
         Mat bgModel = new Mat();
         // remove alpha channel
-        if (image.channels() > 3) {
-            Imgproc.cvtColor(image, image, Imgproc.COLOR_RGBA2BGR);
-        }
-        Imgproc.grabCut(image, backgroundMask, rect, bgModel, fgModel, 3, Imgproc.GC_INIT_WITH_RECT);
+        Mat imageWithoutAlpha = new Mat();
+        Imgproc.cvtColor(image, imageWithoutAlpha, Imgproc.COLOR_RGBA2BGR);
+        Imgproc.grabCut(imageWithoutAlpha, backgroundMask, rect, bgModel, fgModel, 2, Imgproc.GC_INIT_WITH_RECT);
         Core.compare(backgroundMask, new Scalar(3.0), backgroundMask, Core.CMP_EQ);
         return backgroundMask;
     }
@@ -157,7 +168,7 @@ public class FoodImage extends Image{
      * @throws EmptyContentException If the background mask is not found.
      */
     public Image getImageWithMask() throws EmptyContentException {
-        if (features.total() == 0) {
+        if (backgroundMask.total() == 0) {
             throw new EmptyContentException("background");
         }
         Mat imageWithMask = new Mat();
