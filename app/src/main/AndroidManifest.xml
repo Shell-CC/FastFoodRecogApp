@@ -19,9 +19,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChooseRestActivity" >
+        <activity
+            android:name=".ChooseRestActivity"
+            android:launchMode="singleInstance" >
         </activity>
-        <activity android:name=".ImageActivity" >
+        <activity
+            android:name=".ImageActivity"
+            android:launchMode="singleInstance">
+        </activity>
+        <activity
+            android:name=".LearningActivity"
+            android:launchMode="singleInstance" >
         </activity>
     </application>
 

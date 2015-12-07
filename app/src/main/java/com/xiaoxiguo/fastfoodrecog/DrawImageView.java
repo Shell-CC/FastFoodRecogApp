@@ -10,15 +10,18 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
+import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 
 public class DrawImageView extends View {
     private Bitmap foodImage;
-    private Bitmap grabCuttedImage;
     private Paint paint;
+
+    private Bitmap grabCuttedImage;
+    private boolean grabCutted;
+    private Mat mask;
 
     private boolean drawRect = false;
     private float leftTopX;
@@ -74,7 +77,7 @@ public class DrawImageView extends View {
                 Log.d("Procedure", "Choose bottom-right: " + rightBottomX + "," + rightBottomY);
                 Log.d("Procedure", "Re-draw rect and reload grab-cut background image.");
                 // Grab-cut and show result
-                grubcut();
+                grabCutted = grubcut();
                 setBackground(new BitmapDrawable(grabCuttedImage));
             }
         }
@@ -84,7 +87,7 @@ public class DrawImageView extends View {
         return true;
     }
 
-    private void grubcut() {
+    private boolean grubcut() {
         FoodImage image = new FoodImage(foodImage);
         // Get same scale of rectangular for grab-cut
         double x1 = leftTopX * foodImage.getWidth() / this.getWidth();
@@ -97,7 +100,7 @@ public class DrawImageView extends View {
         Rect rect = new Rect(new Point(x1, y1), new Point(x2, y2));
         // Extract using grab cut
         Log.v("Procedure", "Grab cutting...");
-        image.extractBackgroundMask(rect);
+        mask = image.extractBackgroundMask(rect);
         Log.v("Procedure", "grab-cut done!");
         // save grab-cutted image to bitmap image
         try {
@@ -105,6 +108,20 @@ public class DrawImageView extends View {
         } catch (FoodImage.EmptyContentException e) {
             grabCuttedImage = foodImage;
             Log.v("Procedure", "Grab-cut failed");
+            return false;
         }
+        return true;
+    }
+
+    public Bitmap getGrabCuttedImage() throws FoodImage.EmptyContentException {
+        if (!grabCutted) {
+            throw new FoodImage().new EmptyContentException("Not grab-cutted yet");
+        }
+        return grabCuttedImage;
+    }
+
+    public void learning() {
+        Log.v("Procedure", "extracting features");
+
     }
 }

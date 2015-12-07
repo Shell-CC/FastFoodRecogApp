@@ -180,7 +180,7 @@ public class FoodImage extends Image{
     /**
      * Exception if the retrived info in the image is empty.
      */
-    class EmptyContentException extends Exception {
+    public class EmptyContentException extends Exception {
         public EmptyContentException(String message) {
             super(message);
         }

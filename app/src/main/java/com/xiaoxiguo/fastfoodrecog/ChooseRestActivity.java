@@ -75,6 +75,8 @@ public class ChooseRestActivity extends AppCompatActivity {
                 // Image capture failed, advise user
                 Toast.makeText(this, "Image capture failed", Toast.LENGTH_SHORT).show();
             }
+        } else {
+            Toast.makeText(this, "Why am I here", Toast.LENGTH_LONG).show();
         }
     }
 
