@@ -14,9 +14,13 @@ import android.view.View;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.features2d.DescriptorExtractor;
+import org.opencv.features2d.FeatureDetector;
 
 public class DrawImageView extends View {
-    private Bitmap foodImage;
+
+    private FoodImage foodImage;
+
     private Paint paint;
 
     private Bitmap grabCuttedImage;
@@ -24,6 +28,8 @@ public class DrawImageView extends View {
     private Mat mask;
 
     private boolean drawRect = false;
+    private boolean drawable = true;
+
     private float leftTopX;
     private float leftTopY;
     private float rightBottomX;
@@ -47,12 +53,17 @@ public class DrawImageView extends View {
         paint.setStrokeWidth(3);
     }
 
-    // set given image as background, scale it down by 4
+    /**
+     * Set given image as background,
+     * Scale it down by 8 as processing image.
+     * @param foodImage Given image as Bitmap.
+     */
     public void setFoodImage(Bitmap foodImage) {
-        this.foodImage = Bitmap.createScaledBitmap(foodImage,
+        Bitmap bitmap = Bitmap.createScaledBitmap(foodImage,
                 foodImage.getWidth()/8, foodImage.getHeight()/8, true);
         Log.v("ImgProc", "Bitmap image config: " + foodImage.getConfig().toString());
-        setBackground(new BitmapDrawable(this.foodImage));
+        setBackground(new BitmapDrawable(bitmap));
+        this.foodImage = new FoodImage(bitmap);
     }
 
     @Override
@@ -65,6 +76,8 @@ public class DrawImageView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!drawable) return false;
+
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             leftTopX = event.getX();
             leftTopY = event.getY();
@@ -78,7 +91,9 @@ public class DrawImageView extends View {
                 Log.d("Procedure", "Re-draw rect and reload grab-cut background image.");
                 // Grab-cut and show result
                 grabCutted = grubcut();
-                setBackground(new BitmapDrawable(grabCuttedImage));
+                if (grabCutted) {
+                    setBackground(new BitmapDrawable(grabCuttedImage));
+                }
             }
         }
         // Redraw on this view
@@ -87,26 +102,32 @@ public class DrawImageView extends View {
         return true;
     }
 
+    public void setNotDrawble() {
+        drawable = false;
+    }
+
+    public void setDrawable() {
+        drawable = true;
+    }
+
     private boolean grubcut() {
-        FoodImage image = new FoodImage(foodImage);
         // Get same scale of rectangular for grab-cut
-        double x1 = leftTopX * foodImage.getWidth() / this.getWidth();
-        double y1 = leftTopY * foodImage.getHeight() / this.getHeight();
-        double x2 = rightBottomX * foodImage.getWidth() / this.getWidth();
-        double y2 = rightBottomY * foodImage.getHeight() / this.getHeight();
-        Log.d("ImgProc", "image size: " + image.size());
+        double x1 = leftTopX * foodImage.cols() / this.getWidth();
+        double y1 = leftTopY * foodImage.rows() / this.getHeight();
+        double x2 = rightBottomX * foodImage.cols() / this.getWidth();
+        double y2 = rightBottomY * foodImage.rows() / this.getHeight();
+        Log.d("ImgProc", "image size: " + foodImage.cols() + "*" + foodImage.rows());
         Log.d("ImgProc", "view size: " + this.getWidth() + "*" + this.getHeight());
         Log.d("ImgProc", "selected region: (" + x1 + "," + y1 + "),(" + x2 + "," + y2 + ")");
         Rect rect = new Rect(new Point(x1, y1), new Point(x2, y2));
         // Extract using grab cut
         Log.v("Procedure", "Grab cutting...");
-        mask = image.extractBackgroundMask(rect);
+        mask = foodImage.extractBackgroundMask(rect);
         Log.v("Procedure", "grab-cut done!");
         // save grab-cutted image to bitmap image
         try {
-            grabCuttedImage = image.getImageWithMask().toBitmap(foodImage.getConfig());
+            grabCuttedImage = foodImage.getImageWithMask().toBitmap(Bitmap.Config.ARGB_8888);
         } catch (FoodImage.EmptyContentException e) {
-            grabCuttedImage = foodImage;
             Log.v("Procedure", "Grab-cut failed");
             return false;
         }
@@ -120,8 +141,22 @@ public class DrawImageView extends View {
         return grabCuttedImage;
     }
 
-    public void learning() {
-        Log.v("Procedure", "extracting features");
+    public int learning(Dictionary dictionary, Classifier classifier) {
+        // extracting features
+        Log.v("Procedure", "extracting features...");
+        Mat features = foodImage.extractFeatures(mask,
+                FeatureDetector.FAST, DescriptorExtractor.ORB);
+        Log.v("Procedure", features.size()+" features are detected");
 
+        // Calculate bag of features.
+        Log.v("Procedure", "Calculating bag of features");
+        BagOfFeature bagOfFeature = new BagOfFeature(dictionary, features, 1);
+        Log.v("Procedure", bagOfFeature.toString());
+
+        // Classify bag of features
+        Log.v("Procedure", "Predicting...");
+        int label = classifier.predict(bagOfFeature.toMat());
+        Log.v("Procedure", "Food ID: " + label);
+        return label;
     }
 }

@@ -11,6 +11,9 @@ import android.widget.Toast;
 
 import org.opencv.core.Core;
 
+import java.io.IOException;
+import java.sql.SQLException;
+
 public class MainActivity extends AppCompatActivity {
 
     static {
@@ -50,5 +53,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(imageIntent, 0);
             }
         });
+
+
+        Log.d("database", "creating...");
+
+        // create database.
+        final DatabaseReader db = new DatabaseReader(this);
+        try {
+            db.createDatabase();
+        } catch (IOException e) {
+            Log.e("Database", "error creating");
+        }
     }
 }
