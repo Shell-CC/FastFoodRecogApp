@@ -48,6 +48,7 @@ public class ImageActivity extends AppCompatActivity {
         } catch (IOException e) {
             Toast.makeText(this, "Error loading image!", Toast.LENGTH_LONG).show();
         }
+
     }
 
     @Override
@@ -63,6 +64,10 @@ public class ImageActivity extends AppCompatActivity {
                 imageView.reset();
                 break;
             case R.id.confirm_item:
+                if (!imageView.isGrabCutted()) {
+                    Toast.makeText(ImageActivity.this, "Please choose an image region first.", Toast.LENGTH_LONG).show();
+                    break;
+                }
                 imageView.setNotDrawble();
                 AssetManager manager = getAssets();
                 // try to load dictionary

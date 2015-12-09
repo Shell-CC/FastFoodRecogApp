@@ -22,13 +22,13 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_gravity="center_vertical"
-        android:text="Restaurant" />
+        android:text="Select a local image" />
 
     <Button
         android:id="@+id/camera_button"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:text="Camera"
+        android:text="Capture an iamge"
         android:layout_marginTop="20dp" />
 
 </LinearLayout>

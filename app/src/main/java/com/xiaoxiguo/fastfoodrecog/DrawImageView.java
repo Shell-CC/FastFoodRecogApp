@@ -159,6 +159,10 @@ public class DrawImageView extends View {
         return grabCuttedImage;
     }
 
+    public boolean isGrabCutted() {
+        return grabCutted;
+    }
+
     public int learning(Dictionary dictionary, Classifier classifier) {
         // extracting features
         Log.v("Procedure", "extracting features...");
