@@ -20,15 +20,22 @@ import org.opencv.features2d.FeatureDetector;
 public class DrawImageView extends View {
 
     private FoodImage foodImage;
+    private Bitmap originalImage;
 
-    private Paint paint;
+    private static Paint paint;
+    static {
+        paint = new Paint();
+        paint.setColor(Color.RED);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(3);
+    }
 
-    private Bitmap grabCuttedImage;
-    private boolean grabCutted;
     private Mat mask;
+    private Bitmap grabCuttedImage;
 
-    private boolean drawRect = false;
-    private boolean drawable = true;
+    private boolean drawRect;
+    private boolean drawable;
+    private boolean grabCutted;
 
     private float leftTopX;
     private float leftTopY;
@@ -37,20 +44,27 @@ public class DrawImageView extends View {
 
     public DrawImageView(Context context) {
         super(context);
-        setPainter();
+        Log.d("Activity", "DrawImageView onCreate");
+        initial();
     }
 
     public DrawImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setPainter();
+        Log.d("Activity", "DrawImageView onCreate");
+        initial();
     }
 
-    private void setPainter() {
-        Log.d("Procedure", "DrawImageView created.");
-        paint = new Paint();
-        paint.setColor(Color.RED);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(3);
+    /**
+     * Initial state.
+     */
+    private void initial() {
+        Log.d("Procedure", "DrawImageView initialed.");
+        drawable = true;
+        drawRect = false;
+        grabCutted = false;
+
+        grabCuttedImage = null;
+        mask = null;
     }
 
     /**
@@ -59,11 +73,19 @@ public class DrawImageView extends View {
      * @param foodImage Given image as Bitmap.
      */
     public void setFoodImage(Bitmap foodImage) {
-        Bitmap bitmap = Bitmap.createScaledBitmap(foodImage,
-                foodImage.getWidth()/8, foodImage.getHeight()/8, true);
+        originalImage = resize(foodImage, 600, 800);
         Log.v("ImgProc", "Bitmap image config: " + foodImage.getConfig().toString());
-        setBackground(new BitmapDrawable(bitmap));
-        this.foodImage = new FoodImage(bitmap);
+        setBackground(new BitmapDrawable(originalImage));
+        this.foodImage = new FoodImage(originalImage);
+    }
+
+    /**
+     * Reset the View to initial state.
+     * Reset background image as the original image(scaled).
+     */
+    public void reset() {
+        initial();
+        setBackground(new BitmapDrawable(originalImage));
     }
 
     @Override
@@ -106,10 +128,6 @@ public class DrawImageView extends View {
         drawable = false;
     }
 
-    public void setDrawable() {
-        drawable = true;
-    }
-
     private boolean grubcut() {
         // Get same scale of rectangular for grab-cut
         double x1 = leftTopX * foodImage.cols() / this.getWidth();
@@ -128,7 +146,7 @@ public class DrawImageView extends View {
         try {
             grabCuttedImage = foodImage.getImageWithMask().toBitmap(Bitmap.Config.ARGB_8888);
         } catch (FoodImage.EmptyContentException e) {
-            Log.v("Procedure", "Grab-cut failed");
+            Log.e("Procedure", "Grab-cut failed");
             return false;
         }
         return true;
@@ -158,5 +176,36 @@ public class DrawImageView extends View {
         int label = classifier.predict(bagOfFeature.toMat());
         Log.v("Procedure", "Food ID: " + label);
         return label;
+    }
+
+    /**
+     * Scale down the image if the size is over the max bound.
+     * so that the image is bounded by the max given size.
+     * Created by joaomgcd@stackoverflow
+     *
+     * @param image Input image
+     * @param maxWidth Max width which is bounded.
+     * @param maxHeight Mat height which is bounded.
+     * @return The resized (scale-downed) image in Bitmap.
+     */
+    private Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
+        if (maxHeight > 0 && maxWidth > 0) {
+            int width = image.getWidth();
+            int height = image.getHeight();
+            float ratioBitmap = (float) width / (float) height;
+            float ratioMax = (float) maxWidth / (float) maxHeight;
+
+            int finalWidth = maxWidth;
+            int finalHeight = maxHeight;
+            if (ratioMax > 1) {
+                finalWidth = (int) ((float)maxHeight * ratioBitmap);
+            } else {
+                finalHeight = (int) ((float)maxWidth / ratioBitmap);
+            }
+            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+            return image;
+        } else {
+            return image;
+        }
     }
 }

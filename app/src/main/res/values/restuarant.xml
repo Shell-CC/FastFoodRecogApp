@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    // Restaurant names.
+    <string name="rest1_name">Arby\'s</string>
+    <string name="rest2_name">Bruggers Bagels</string>
+    <string name="rest3_name">Dunkin\' Donuts</string>
+    <string name="rest4_name">KFC</string>
+    <string name="rest5_name">Mcdonalds</string>
+    <string name="rest6_name">Panera</string>
+    <string name="rest7_name">Pizza Hut</string>
+    <string name="rest8_name">Taco Bell</string>
+    <string name="rest9_name">Wendys</string>
+    <string name="rest10_name">Subways</string>
+    <string name="rest11_name">Quiznos</string>
+
+</resources>

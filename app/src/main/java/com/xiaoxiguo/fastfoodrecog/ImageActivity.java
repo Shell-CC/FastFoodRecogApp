@@ -24,16 +24,22 @@ public class ImageActivity extends AppCompatActivity {
 
     private DrawImageView imageView;
 
+    private int restId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("Procedure", "ImageActivity onCreate");
-        setTitle("Food Image");
+        Log.d("Activity", "ImageActivity onCreate");
+        setTitle(R.string.image_activity_title);
         setContentView(R.layout.activity_image);
+
         imageView = (DrawImageView) findViewById(R.id.food_image);
 
-        // Get image
+        // Get image uri and restaurant id.
         Uri imageUri = getIntent().getParcelableExtra("imageUri");
+        restId = getIntent().getIntExtra("restId", -1);
+        Log.d("Intent", "Get image uri: " + imageUri.toString());
+        Log.d("Intent", "Get resturant id: " + restId);
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
             Log.v("Procedure", "Successfully load image " + imageUri.toString());
@@ -54,18 +60,19 @@ public class ImageActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.reset_item:
-                imageView.setDrawable();
+                imageView.reset();
                 break;
             case R.id.confirm_item:
                 imageView.setNotDrawble();
                 AssetManager manager = getAssets();
                 // try to load dictionary
+                String dictName = "Dictionary/rest" + restId + ".txt";
                 Dictionary dictionary;
                 try {
                     for (String file : manager.list("Dictionary/")) {
                         Log.d("Assets", "Dictionary found: " + file);
                     }
-                    Reader reader = new InputStreamReader(manager.open("Dictionary/rest1.txt"));
+                    Reader reader = new InputStreamReader(manager.open(dictName));
                     dictionary = Dictionary.load(reader);
                 } catch (IOException e) {
                     Toast.makeText(this, "Failed to load dictionary", Toast.LENGTH_LONG).show();
@@ -73,9 +80,10 @@ public class ImageActivity extends AppCompatActivity {
                 }
 
                 // try to load classifier
+                String classifierName = "Classifier/svm" + restId + ".xml";
                 Classifier classifier = new Classifier();
                 try {
-                    String path = copyToCache(manager.open("Classifier/svm1.xml"));
+                    String path = copyToCache(manager.open(classifierName));
                     classifier.load(path);
                 } catch (IOException e) {
                     Toast.makeText(this, "Failed to load classifier", Toast.LENGTH_LONG).show();
@@ -83,8 +91,8 @@ public class ImageActivity extends AppCompatActivity {
                 }
 
                 // predict
-                int label = imageView.learning(dictionary, classifier);
-                Toast.makeText(this, "Food ID: " + label, Toast.LENGTH_LONG).show();
+                int foodId = imageView.learning(dictionary, classifier);
+                Toast.makeText(this, "Food ID: " + foodId, Toast.LENGTH_LONG).show();
 
                 final DatabaseReader db = new DatabaseReader(this);
                 try {
@@ -93,7 +101,7 @@ public class ImageActivity extends AppCompatActivity {
                     Log.e("Databse", "error opening");
                 }
 
-                String[] result = db.readDb(1, label);
+                String[] result = db.readDb(restId, foodId);
                 Toast.makeText(this, "Food name: " + result[0], Toast.LENGTH_LONG).show();
                 Toast.makeText(this, "Calorie: " + result[1], Toast.LENGTH_LONG).show();
                 break;

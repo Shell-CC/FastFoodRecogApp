@@ -1,10 +1,10 @@
 <resources>
     // title string
-    <string name="app_name">Fastfood Recognizor</string>
-    <string name="choose_rest_title">Restaurant List</string>
+    <string name="app_name">Fast-food Recognizor</string>
+    <string name="choose_rest_title">Choose Restaurant</string>
+    <string name="image_activity_title">Food Image Information</string>
 
     // context
     <string name="hint_text">Choose a restaurant first.</string>
-    <string name="title_activity_main2">Main2Activity</string>
 
 </resources>
