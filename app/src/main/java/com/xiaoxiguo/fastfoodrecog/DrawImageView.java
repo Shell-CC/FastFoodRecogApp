@@ -124,6 +124,31 @@ public class DrawImageView extends View {
         return true;
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int originalWidth = MeasureSpec.getSize(widthMeasureSpec);
+
+        int originalHeight = MeasureSpec.getSize(heightMeasureSpec);
+
+        int calculatedHeight = originalWidth * originalImage.getHeight() / originalImage.getWidth();
+
+        int finalWidth, finalHeight;
+
+        if (calculatedHeight > originalHeight)
+        {
+            finalWidth = originalHeight * originalImage.getWidth() / originalImage.getHeight();
+            finalHeight = originalHeight;
+        }
+        else
+        {
+            finalWidth = originalWidth;
+            finalHeight = calculatedHeight;
+        }
+        super.onMeasure(
+                MeasureSpec.makeMeasureSpec(finalWidth, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(finalHeight, MeasureSpec.EXACTLY));
+    }
+
     public void setNotDrawble() {
         drawable = false;
     }

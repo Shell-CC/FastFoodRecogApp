@@ -39,7 +39,7 @@ public class ImageActivity extends AppCompatActivity {
         Uri imageUri = getIntent().getParcelableExtra("imageUri");
         restId = getIntent().getIntExtra("restId", -1);
         Log.d("Intent", "Get image uri: " + imageUri.toString());
-        Log.d("Intent", "Get resturant id: " + restId);
+        Log.d("Intent", "Get restaurant id: " + restId);
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
             Log.v("Procedure", "Successfully load image " + imageUri.toString());
