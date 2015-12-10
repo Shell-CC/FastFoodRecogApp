@@ -1,5 +1,6 @@
 package com.xiaoxiguo.fastfoodrecog;
 
+import android.app.AlertDialog;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -97,18 +98,23 @@ public class ImageActivity extends AppCompatActivity {
 
                 // predict
                 int foodId = imageView.learning(dictionary, classifier);
-                Toast.makeText(this, "Food ID: " + foodId, Toast.LENGTH_LONG).show();
+//                Toast.makeText(this, "Food ID: " + foodId, Toast.LENGTH_LONG).show();
 
                 final DatabaseReader db = new DatabaseReader(this);
                 try {
                     db.openDatabase();
                 } catch (SQLException e) {
-                    Log.e("Databse", "error opening");
+                    Log.e("Database", "error opening");
                 }
 
                 String[] result = db.readDb(restId, foodId);
-                Toast.makeText(this, "Food name: " + result[0], Toast.LENGTH_LONG).show();
-                Toast.makeText(this, "Calorie: " + result[1], Toast.LENGTH_LONG).show();
+
+                new AlertDialog.Builder(this)
+                        .setTitle("Food Information")
+                        .setMessage("Food name: " + result[0] + "\nCalorie: " + result[1] + "\n")
+                        .show();
+//                Toast.makeText(this, "Food name: " + result[0], Toast.LENGTH_LONG).show();
+//                Toast.makeText(this, "Calorie: " + result[1], Toast.LENGTH_LONG).show();
                 break;
         }
         return true;

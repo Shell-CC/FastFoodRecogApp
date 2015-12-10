@@ -164,9 +164,11 @@ public class DrawImageView extends View {
         Log.d("ImgProc", "selected region: (" + x1 + "," + y1 + "),(" + x2 + "," + y2 + ")");
         Rect rect = new Rect(new Point(x1, y1), new Point(x2, y2));
         // Extract using grab cut
+        drawable = false;
         Log.v("Procedure", "Grab cutting...");
         mask = foodImage.extractBackgroundMask(rect);
         Log.v("Procedure", "grab-cut done!");
+        drawable = true;
         // save grab-cutted image to bitmap image
         try {
             grabCuttedImage = foodImage.getImageWithMask().toBitmap(Bitmap.Config.ARGB_8888);
